@@ -8,9 +8,9 @@ from trains import loadDeparturesForStation
 from config import loadConfig
 from open import isRun
 
-from luma.core.interface.serial import spi
+from helpers import get_device
+
 from luma.core.render import canvas
-from luma.oled.device import ssd1322
 from luma.core.virtual import viewport, snapshot, hotspot
 from luma.core.sprite_system import framerate_regulator
 
@@ -323,11 +323,7 @@ try:
     print('Starting Train Departure Display v' + version_file.read())
     config = loadConfig()
 
-    serial = spi(port=0)
-    device = ssd1322(serial, mode="1", rotate=config['screenRotation'])
-    if config['dualScreen'] == True:
-        serial1 = spi(port=1,gpio_DC=5, gpio_RST=6)
-        device1 = ssd1322(serial1, mode="1", rotate=config['screenRotation'])
+    device = get_device()
     font = makeFont("Dot Matrix Regular.ttf", 10)
     fontBold = makeFont("Dot Matrix Bold.ttf", 10)
     fontBoldTall = makeFont("Dot Matrix Bold Tall.ttf", 10)
