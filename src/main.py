@@ -96,13 +96,10 @@ def renderTime(draw, width, height):
     rawTime = datetime.now().time()
     hour, minute, second = str(rawTime).split('.')[0].split(':')
 
-    w1, h1 = draw.textsize("{}:{}".format(hour, minute), fontBoldLarge)
-    w2, h2 = draw.textsize(":00", fontBoldTall)
+    w1, h1 = draw.textsize("{} : {} : 00".format(hour, minute), fontBoldLarge)
 
-    draw.text(((width - w1 - w2) / 2, 0), text="{}:{}".format(hour, minute),
+    draw.text(((width - w1) / 2, 0), text="{} : {} : {}".format(hour, minute, second),
               font=fontBoldLarge, fill="yellow")
-    draw.text((((width - w1 - w2) / 2) + w1, 5), text=":{}".format(second),
-              font=fontBoldTall, fill="yellow")
 
 
 def renderWelcomeTo(xOffset):
