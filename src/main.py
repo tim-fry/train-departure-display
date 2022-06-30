@@ -72,6 +72,11 @@ def renderCallingAt(draw, width, height):
     stations = "Calling at: "
     draw.text((0, 0), text=stations, font=font, fill="yellow")
 
+def renderPosition(text):
+    def drawText(draw, width, height):
+        draw.text((0, 0), text=text, font=font, fill="yellow")
+
+    return drawText
 
 def renderStations(stations):
     def drawText(draw, width, height):
@@ -253,13 +258,15 @@ def drawSignage(device, width, height, data):
     with canvas(device) as draw:
         w, h = draw.textsize(status, font)
         pw, ph = draw.textsize("Plat 88", font)
+        posw, posh = draw.textsize("3rd ", font)
 
     if(len(departures) == 0):
         noTrains = drawBlankSignage(device, width=width, height=height, departureStation=departureStation)
         return noTrains
 
+    rowOnePos = snapshot(posw, 10, renderPosition("1st"), interval=10)
     rowOneA = snapshot(
-        width - w - pw - 5, 10, renderDestination(departures[0], fontBold), interval=config["refreshTime"])
+        width - w - pw - posw, 10, renderDestination(departures[0], font), interval=config["refreshTime"])
     rowOneB = snapshot(w, 10, renderServiceStatus(
         departures[0]), interval=10)
     rowOneC = snapshot(pw, 10, renderPlatform(departures[0]), interval=config["refreshTime"])
@@ -268,14 +275,16 @@ def drawSignage(device, width, height, data):
                        renderStations(firstDepartureDestinations), interval=0.1)
 
     if(len(departures) > 1):
-        rowThreeA = snapshot(width - w - pw, 10, renderDestination(
+        rowThreePos = snapshot(posw, 10, renderPosition("2nd"), interval=10)
+        rowThreeA = snapshot(width - w - pw - posw, 10, renderDestination(
             departures[1], font), interval=config["refreshTime"])
         rowThreeB = snapshot(w, 10, renderServiceStatus(
             departures[1]), interval=config["refreshTime"])
         rowThreeC = snapshot(pw, 10, renderPlatform(departures[1]), interval=config["refreshTime"])
 
     if(len(departures) > 2):
-        rowFourA = snapshot(width - w - pw, 10, renderDestination(
+        rowFourPos = snapshot(posw, 10, renderPosition("3rd"), interval=10)
+        rowFourA = snapshot(width - w - pw - posw, 10, renderDestination(
             departures[2], font), interval=10)
         rowFourB = snapshot(w, 10, renderServiceStatus(
             departures[2]), interval=10)
@@ -290,19 +299,22 @@ def drawSignage(device, width, height, data):
     stationRenderCount = 0
     pauseCount = 0
 
-    virtualViewport.add_hotspot(rowOneA, (0, 0))
+    virtualViewport.add_hotspot(rowOnePos, (0, 0))
+    virtualViewport.add_hotspot(rowOneA, (posw, 0))
     virtualViewport.add_hotspot(rowOneB, (width - w, 0))
     virtualViewport.add_hotspot(rowOneC, (width - w - pw, 0))
     virtualViewport.add_hotspot(rowTwoA, (0, 12))
     virtualViewport.add_hotspot(rowTwoB, (callingWidth, 12))
 
     if(len(departures) > 1):
-        virtualViewport.add_hotspot(rowThreeA, (0, 24))
+        virtualViewport.add_hotspot(rowThreePos, (0, 24))
+        virtualViewport.add_hotspot(rowThreeA, (posw, 24))
         virtualViewport.add_hotspot(rowThreeB, (width - w, 24))
         virtualViewport.add_hotspot(rowThreeC, (width - w - pw, 24))
 
     if(len(departures) > 2):
-        virtualViewport.add_hotspot(rowFourA, (0, 36))
+        virtualViewport.add_hotspot(rowFourPos, (0, 36))
+        virtualViewport.add_hotspot(rowFourA, (posw, 36))
         virtualViewport.add_hotspot(rowFourB, (width - w, 36))
         virtualViewport.add_hotspot(rowFourC, (width - w - pw, 36))
 
