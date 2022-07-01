@@ -1,4 +1,5 @@
 import os
+import requests
 import time
 
 from datetime import datetime
@@ -365,17 +366,20 @@ try:
                 if(timeNow - timeAtStart >= config["refreshTime"]):
 
                     print('Effective FPS: ' + str(round(regulator.effective_FPS(),2)))
-                    data = loadData(config["api"], config["journey"], config)
-                    if data[0] == False:
-                        virtual = drawBlankSignage(
-                            device, width=widgetWidth, height=widgetHeight, departureStation=data[2])
-                    else:
-                        departureData = data[0]
-                        nextStations = data[1]
-                        station = data[2]
-                        screenData = platform_filter(departureData, config["journey"]["screen1Platform"], nextStations, station)
-                        virtual = drawSignage(device, width=widgetWidth,height=widgetHeight, data=screenData)
-                        
+                    try:
+                        data = loadData(config["api"], config["journey"], config)
+                        if data[0] == False:
+                            virtual = drawBlankSignage(
+                                device, width=widgetWidth, height=widgetHeight, departureStation=data[2])
+                        else:
+                            departureData = data[0]
+                            nextStations = data[1]
+                            station = data[2]
+                            screenData = platform_filter(departureData, config["journey"]["screen1Platform"], nextStations, station)
+                            virtual = drawSignage(device, width=widgetWidth,height=widgetHeight, data=screenData)
+                    except requests.exceptions.RequestException:
+                        print('Caught requests exception, what now???')
+
                     timeAtStart = time.time()
 
                 timeNow = time.time()
