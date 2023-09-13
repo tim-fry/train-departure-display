@@ -154,7 +154,10 @@ def loadData(apiConfig, journeyConfig, config):
     if len(runHours) == 2 and isRun(runHours[0], runHours[1]) == False:
         return False, False, journeyConfig['outOfHoursName']
 
-    rows = "3"
+    if config['dualScreen'] == True:
+        rows = "6"
+    else:
+        rows = "3"
 
     departures, stationName = loadDeparturesForStation(
         journeyConfig, apiConfig["apiKey"], rows)
@@ -338,6 +341,9 @@ try:
     # display NRE attribution while data loads
     virtual = drawStartup(device, width=widgetWidth, height=widgetHeight)
     virtual.refresh()
+    if config['dualScreen'] == True:
+        virtual = drawStartup(device1, width=widgetWidth, height=widgetHeight)
+        virtual.refresh()
     time.sleep(5)
 
     timeAtStart = time.time()-config["refreshTime"]
@@ -351,6 +357,8 @@ try:
         with regulator:
             if len(blankHours) == 2 and isRun(blankHours[0], blankHours[1]) == True:
                 device.clear()
+                if config['dualScreen'] == True:
+                    device1.clear()
                 time.sleep(10)
             else:
                 if(timeNow - timeAtStart >= config["refreshTime"]):
@@ -360,6 +368,9 @@ try:
                     if data[0] == False:
                         virtual = drawBlankSignage(
                             device, width=widgetWidth, height=widgetHeight, departureStation=data[2])
+                        if config['dualScreen'] == True:
+                            virtual1 = drawBlankSignage(
+                                device1, width=widgetWidth, height=widgetHeight, departureStation=data[2])
                     else:
                         departureData = data[0]
                         nextStations = data[1]
@@ -367,10 +378,16 @@ try:
                         screenData = platform_filter(departureData, config["journey"]["screen1Platform"], nextStations, station)
                         virtual = drawSignage(device, width=widgetWidth,height=widgetHeight, data=screenData)
                         
+                        if config['dualScreen'] == True:
+                            screen1Data = platform_filter(departureData, config["journey"]["screen2Platform"], nextStations, station)
+                            virtual1 = drawSignage(device1, width=widgetWidth,height=widgetHeight, data=screen1Data)
+
                     timeAtStart = time.time()
 
                 timeNow = time.time()
                 virtual.refresh()
+                if config['dualScreen'] == True:
+                    virtual1.refresh()
 
 except KeyboardInterrupt:
     pass
